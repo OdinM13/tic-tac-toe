@@ -40,17 +40,20 @@ const Gameboard = (function() {
         let diag2Win = true;
         for (let i = 0; i < boardLength; i++) {
             if (board[i][boardLength - i - 1] !== marker) {
-                daig2Win = false;
+                diag2Win = false;
             }
         }
         return diag2Win;
     }
     
     const makeMove = (marker, y, x) => {
-        // Update code. checkWin should only come, if the marker was placed. Replace ternary with solid if-statemenet
-        board[y][x] === null ? board[y][x] = marker : console.log("Place already taken. Choose another spot");
-        // Implement Code to handle the return.
-        checkWin (marker, y, x);
+        if (board[y][x] !== null) {
+            return console.log("Place already taken. Choose another spot.");
+        }
+        board[y][x] = marker; 
+        if (checkWin (marker, y, x)) {
+            console.log(`Congratulations ${marker} won!`);
+        }
     }
 
     return {
@@ -59,34 +62,35 @@ const Gameboard = (function() {
     };
 })();
 
-// factory for making players
-const createPlayer = (name, symbol) => {
-    let score = 0; 
+const Gameplay = (function(){
+    const _maxRounds = 5;
+    // factory for making players
+    const createPlayer = (name, symbol) => {
+        let score = 0; 
 
-    return {
-        name,
-        symbol,
-        getScore: () => score, 
-        givePoint: () => score++
+        return {
+            name,
+            symbol,
+            getScore: () => score, 
+            givePoint: () => score++
+        };
     };
-};
+    return {
+        createPlayer,
+    }
 
-const player1 = createPlayer("Alice", "X");
-console.log(player1);
-console.log(player1.getScore());
-console.log(player1.givePoint());
-console.log(player1.symbol);
-console.log(player1.getScore());
+})();
+
+const player1 = Gameplay.createPlayer("Alice", "X");
+const player2 = Gameplay.createPlayer("Max", "O");
 
 Gameboard.set(player1.symbol, 0, 0);
 Gameboard.set(player1.symbol, 0, 1);
 Gameboard.set(player1.symbol, 0, 2);
 
 Gameboard.show();
-Gameboard.eval(player1.symbol);
 
-// function that keeps track of player turn
-//
-// function that places a mark for a player
-//
-// function to check game over after each round
+const container = document.querySelector(".container");
+container.addEventlistener("click", () => {
+    
+}))

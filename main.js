@@ -48,16 +48,23 @@ const Gameboard = (function() {
     
     const makeMove = (marker, y, x) => {
         if (board[y][x] !== null) {
-            return console.log("Place already taken. Choose another spot.");
+            console.log("Place already taken. Choose another spot.");
+            return false;
         }
         board[y][x] = marker; 
         if (checkWin (marker, y, x)) {
             console.log(`Congratulations ${marker} won!`);
         }
+        return true;
+    }
+
+    const resetBoard = () => {
+        board.forEach(val => val.fill(null));
     }
 
     return {
         set: makeMove,
+        rem: resetBoard,
         show: () => console.table(board),
     };
 })();
@@ -75,22 +82,54 @@ const Gameplay = (function(){
             givePoint: () => score++
         };
     };
+
+    // const playerSwitch = (symbol) => {
+    //     if (symbol === "X"){
+    //         symbol === "O";
+    //     }
+    // }
     return {
         createPlayer,
     }
 
 })();
 
-const player1 = Gameplay.createPlayer("Alice", "X");
-const player2 = Gameplay.createPlayer("Max", "O");
 
-Gameboard.set(player1.symbol, 0, 0);
-Gameboard.set(player1.symbol, 0, 1);
-Gameboard.set(player1.symbol, 0, 2);
 
-Gameboard.show();
 
-const container = document.querySelector(".container");
-container.addEventlistener("click", () => {
+document.addEventListener("DOMContentLoaded", () => {
+    const player1 = Gameplay.createPlayer("Player X", "X");
+    const player2 = Gameplay.createPlayer("Player O", "O");
     
-}))
+    const container = document.querySelector(".container");
+    container.addEventListener("click", (e) => {
+        if (e.target.getAttribute("data-index") !== null) {
+            const row = e.target.getAttribute("data-row");
+            const col = e.target.getAttribute("data-col");
+            const result = Gameboard.set(player1.symbol, row, col);
+            if (result) {
+                e.target.appendChild(document.createTextNode(player1.symbol));
+            }
+            console.log(result);
+            console.log(row, col);
+        //     console.log(e.target.getAttribute("data-index")); 
+        //     console.log(e.target.textContent);
+        }
+    })
+});
+
+// Gameboard.set(player1.symbol, 0, 0);
+// Gameboard.set(player1.symbol, 0, 1);
+// Gameboard.set(player1.symbol, 0, 2);
+//
+// Gameboard.show();
+
+const reset = document.querySelector(".btnreset");
+reset.addEventListener("click", () => {
+    Gameboard.rem();
+    Gameboard.show();
+    const cell = document.querySelectorAll(".cell");
+    Array.from(cell).forEach(i => {
+        i.textContent = "";
+    });
+})

@@ -35,3 +35,11 @@ main div {
     border: 1px solid black;
     border-radius: 8px;
 }
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10rem;
+    font-weight: bold;
+}

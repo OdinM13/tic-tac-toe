@@ -4,6 +4,8 @@ const Gameboard = (function() {
         [null, null, null],
         [null, null, null]
     ] 
+    const message = document.querySelector(".message");
+
     const checkRow = (y, marker) => {
         return board[y].every(val => val === marker);
     }
@@ -24,6 +26,14 @@ const Gameboard = (function() {
         return false;
     }
     
+    const checkDraw = () => {
+        if (board.flat().every(val => val !== null)) {
+            // alert("Draw!");
+            message.textContent = "";
+            message.appendChild(document.createTextNode("Draw!"));
+        }
+    }
+
     const checkDiag = (marker) => {
         let boardLength = board.length;
 // Top-Left to Bottom-Right: (0,0, 1,1, 2,2)
@@ -47,19 +57,26 @@ const Gameboard = (function() {
     }
     
     const makeMove = (marker, y, x) => {
+        message.textContent = "";
         if (board[y][x] !== null) {
-            console.log("Place already taken. Choose another spot.");
+            // alert("Place already taken. Choose another spot.");
+            message.textContent = "";
+            message.appendChild(document.createTextNode("Place already taken. Choose another spot."));
             return false;
         }
         board[y][x] = marker; 
         if (checkWin (marker, y, x)) {
-            console.log(`Congratulations ${marker} won!`);
+            // alert(`Congratulations ${marker} won!`);
+            message.textContent = "";
+            message.appendChild(document.createTextNode(`Congratulations ${marker} won!`));
         }
+        checkDraw();
         return true;
     }
 
     const resetBoard = () => {
         board.forEach(val => val.fill(null));
+        message.textContent = "";
     }
 
     return {
@@ -83,46 +100,32 @@ const Gameplay = (function(){
         };
     };
 
-    // const playerSwitch = (symbol) => {
-    //     if (symbol === "X"){
-    //         symbol === "O";
-    //     }
-    // }
     return {
         createPlayer,
     }
 
 })();
 
-
-
-
 document.addEventListener("DOMContentLoaded", () => {
     const player1 = Gameplay.createPlayer("Player X", "X");
     const player2 = Gameplay.createPlayer("Player O", "O");
+    let activePlayer = player1;
     
     const container = document.querySelector(".container");
     container.addEventListener("click", (e) => {
         if (e.target.getAttribute("data-index") !== null) {
             const row = e.target.getAttribute("data-row");
             const col = e.target.getAttribute("data-col");
-            const result = Gameboard.set(player1.symbol, row, col);
+            const result = Gameboard.set(activePlayer.symbol, row, col);
             if (result) {
-                e.target.appendChild(document.createTextNode(player1.symbol));
+                e.target.appendChild(document.createTextNode(activePlayer.symbol));
+                activePlayer = (activePlayer === player1) ? player2 : player1;
             }
             console.log(result);
             console.log(row, col);
-        //     console.log(e.target.getAttribute("data-index")); 
-        //     console.log(e.target.textContent);
         }
     })
 });
-
-// Gameboard.set(player1.symbol, 0, 0);
-// Gameboard.set(player1.symbol, 0, 1);
-// Gameboard.set(player1.symbol, 0, 2);
-//
-// Gameboard.show();
 
 const reset = document.querySelector(".btnreset");
 reset.addEventListener("click", () => {

@@ -34,6 +34,7 @@ main div {
     font-weight: bold;
     border: 1px solid black;
     border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(37, 37, 57, 0.15);
 }
 
 .cell {
@@ -42,4 +43,18 @@ main div {
     align-items: center;
     font-size: 10rem;
     font-weight: bold;
+}
+
+footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}
+
+.message {
+    font-size: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(6, 78, 59, 0.15);
 }

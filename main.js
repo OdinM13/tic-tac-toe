@@ -69,17 +69,24 @@ const Gameboard = (function() {
             // alert(`Congratulations ${marker} won!`);
             message.textContent = "";
             message.appendChild(document.createTextNode(`Congratulations ${marker} won!`));
+            if (marker === player1.symbol) {
+                player1.givePoint();
+            } else {
+                player2.givePoint();
+            }
         }
         checkDraw();
         return true;
     }
 
     const resetBoard = () => {
+    // Currently the new game begins with the opposite marker ended. E.g. with "O". But it should always start with "X", or should it?
         board.forEach(val => val.fill(null));
         message.textContent = "";
     }
 
     return {
+        win: checkWin,
         set: makeMove,
         rem: resetBoard,
         show: () => console.table(board),
@@ -106,9 +113,10 @@ const Gameplay = (function(){
 
 })();
 
+const player1 = Gameplay.createPlayer("Player X", "X");
+const player2 = Gameplay.createPlayer("Player O", "O");
+
 document.addEventListener("DOMContentLoaded", () => {
-    const player1 = Gameplay.createPlayer("Player X", "X");
-    const player2 = Gameplay.createPlayer("Player O", "O");
     let activePlayer = player1;
     
     const container = document.querySelector(".container");
@@ -116,13 +124,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target.getAttribute("data-index") !== null) {
             const row = e.target.getAttribute("data-row");
             const col = e.target.getAttribute("data-col");
-            const result = Gameboard.set(activePlayer.symbol, row, col);
-            if (result) {
-                e.target.appendChild(document.createTextNode(activePlayer.symbol));
-                activePlayer = (activePlayer === player1) ? player2 : player1;
+            // Fix Bug where still one move is possible after round ended
+            if (!Gameboard.win(activePlayer.symbol, row, col)) {
+                const result = Gameboard.set(activePlayer.symbol, row, col);
+                if (result) {
+                    e.target.appendChild(document.createTextNode(activePlayer.symbol));
+                    activePlayer = (activePlayer === player1) ? player2 : player1;
+                }
+                console.log(result);
+                console.log(row, col);
             }
-            console.log(result);
-            console.log(row, col);
         }
     })
 });

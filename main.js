@@ -6,6 +6,8 @@ const Gameboard = (function() {
     ] 
     const message = document.querySelector(".message");
 
+    let gameOver = false;
+
     const checkRow = (y, marker) => {
         return board[y].every(val => val === marker);
     }
@@ -21,6 +23,7 @@ const Gameboard = (function() {
     
     const checkWin = (marker, y, x) => {
         if (checkRow(y, marker) || checkColumn(x, marker) || checkDiag(marker)) {
+            gameOver = true;
             return true;
         }
         return false;
@@ -29,6 +32,7 @@ const Gameboard = (function() {
     const checkDraw = () => {
         if (board.flat().every(val => val !== null)) {
             // alert("Draw!");
+            gameOver = true;
             message.textContent = "";
             message.appendChild(document.createTextNode("Draw!"));
         }
@@ -58,6 +62,7 @@ const Gameboard = (function() {
     
     const makeMove = (marker, y, x) => {
         message.textContent = "";
+        if (gameOver) return false;
         if (board[y][x] !== null) {
             // alert("Place already taken. Choose another spot.");
             message.textContent = "";
@@ -71,8 +76,10 @@ const Gameboard = (function() {
             message.appendChild(document.createTextNode(`Congratulations ${marker} won!`));
             if (marker === player1.symbol) {
                 player1.givePoint();
+                Gameplay.totalWin(player1.symbol, player1.getScore());
             } else {
                 player2.givePoint();
+                Gameplay.totalWin(player2.symbol, player2.getScore());
             }
         }
         checkDraw();
@@ -82,11 +89,12 @@ const Gameboard = (function() {
     const resetBoard = () => {
     // Currently the new game begins with the opposite marker ended. E.g. with "O". But it should always start with "X", or should it?
         board.forEach(val => val.fill(null));
+        gameOver = false;
         message.textContent = "";
     }
 
     return {
-        win: checkWin,
+        isGameOver: () => gameOver,
         set: makeMove,
         rem: resetBoard,
         show: () => console.table(board),
@@ -103,12 +111,24 @@ const Gameplay = (function(){
             name,
             symbol,
             getScore: () => score, 
-            givePoint: () => score++
+            givePoint: () => ++score,
         };
     };
+    
+    const checkTotalwin = (marker, points) => {
+        if (_maxRounds === points) {
+            const container = document.querySelector(".container");
+            const resetBtn = document.querySelector(".btnreset");
 
+            container.classList.add("frozen"); 
+            resetBtn.classList.add("frozen"); 
+            const winner = document.querySelector(".winner");
+            winner.textContent = `${_maxRounds} rounds are over! ${marker} is the Champion!`;
+        }
+    }
     return {
         createPlayer,
+        totalWin: checkTotalwin,
     }
 
 })();
@@ -118,17 +138,16 @@ const player2 = Gameplay.createPlayer("Player O", "O");
 
 document.addEventListener("DOMContentLoaded", () => {
     let activePlayer = player1;
-    
+
     const container = document.querySelector(".container");
     container.addEventListener("click", (e) => {
         if (e.target.getAttribute("data-index") !== null) {
             const row = e.target.getAttribute("data-row");
             const col = e.target.getAttribute("data-col");
-            // Fix Bug where still one move is possible after round ended
-            if (!Gameboard.win(activePlayer.symbol, row, col)) {
-                const result = Gameboard.set(activePlayer.symbol, row, col);
-                if (result) {
-                    e.target.appendChild(document.createTextNode(activePlayer.symbol));
+            const result = Gameboard.set(activePlayer.symbol, row, col);
+            if (result) {
+                e.target.appendChild(document.createTextNode(activePlayer.symbol));
+                if (!Gameboard.isGameOver()) {
                     activePlayer = (activePlayer === player1) ? player2 : player1;
                 }
                 console.log(result);

@@ -58,3 +58,16 @@ footer {
     border-radius: 8px;
     box-shadow: 0 10px 20px rgba(6, 78, 59, 0.15);
 }
+
+.winner {
+    font-size: 2rem;
+    border-radius: 8px;
+    font-weight: bold;
+    color: darkgreen;
+}
+
+.frozen {
+    pointer-events: none;
+    opacity: 0.6;
+    filter: grayscale(50%);
+}
